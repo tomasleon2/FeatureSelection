@@ -4,26 +4,27 @@ library(caret)
 library(glmnet)
 library(readr)
 library(MASS)
-breast_cancer <- read_csv("C:/Users/lordv/Downloads/breast-cancer.data")
+breast_cancer <- read.csv("C:/Users/lordv/Downloads/breast-cancer.data", header=FALSE)
+colnames(breast_cancer) <- c("target","V1","v2","v3","v4","v5","v6","v7","v8","v9")
 
 # Split the data into training and test set
 set.seed(123)
-training.samples <- breast_cancer$`no-recurrence-events` %>%
+training.samples <- breast_cancer$target %>%
   createDataPartition(p = 0.8, list = FALSE)
 train.data  <- breast_cancer[training.samples, ]
 test.data <- breast_cancer[-training.samples, ]
 
 # Predictor variables
-Train_X <- model.matrix(`no-recurrence-events`~., train.data)[,-1]
-Test_X <- model.matrix(`no-recurrence-events`~., test.data)[,-1]
+Train_X <- model.matrix(target~., train.data)[,-1]
+Test_X <- model.matrix(target~., test.data)[,-1]
 # Outcome variable
-Train_Y <- train.data$`no-recurrence-events`
-Test_Y <- test.data$`no-recurrence-events`
+Train_Y <- train.data$target
+Test_Y <- test.data$target
 
 #Logistic with stepwise
 Train = train.data
-Train$`no-recurrence-events` = as.factor(Train$`no-recurrence-events`)
-model <- glm(`no-recurrence-events` ~ ., data = Train, family = binomial) %>%
+Train$target = as.factor(Train$target)
+model <- glm(target ~ ., data = Train, family = binomial) %>%
   stepAIC(trace = FALSE)
 coef(model)
 
